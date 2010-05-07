@@ -32,7 +32,10 @@
 			get
 			{
 				if (_need_to_refresh_parts)
+				{
 					RefreshParts();
+					_need_to_refresh_parts = false;
+				}
 
 				return _parts;
 			}
@@ -85,8 +88,10 @@
 
 				var base_namespace = module.ModuleType.Namespace;
 
-				parts_found = parts_found.Concat(
-					_inner_catalog.Parts.Where(d => ReflectionModelServices.GetPartType(d).Value.Namespace.StartsWith(base_namespace + ".")));
+				var parts_found_for_namespace = _inner_catalog.Parts
+					.Where(d => IsTypeInNamespaceTree(ReflectionModelServices.GetPartType(d).Value, base_namespace));
+
+				parts_found = parts_found.Concat(parts_found_for_namespace);
 			}
 
 			// include all the modules from the catalog
@@ -95,6 +100,21 @@
 			parts_found = parts_found.Concat(modules_found.Select(t => t.Item1));
 
 			_parts = parts_found.Distinct().ToArray().AsQueryable();
+		}
+
+		public void Load(Predicate<IModuleInfo> criteria)
+		{
+			foreach (var module in Modules)
+			{
+				if (criteria(module))
+					module.Load();
+			}
+		}
+
+		static bool IsTypeInNamespaceTree(Type type, string namespace_root)
+		{
+			return type.Namespace == namespace_root ||
+				type.Namespace.StartsWith(namespace_root + ".");
 		}
 	}
 }

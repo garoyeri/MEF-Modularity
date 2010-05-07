@@ -4,8 +4,10 @@
 	using System.Collections.Generic;
 	using System.Linq;
 	using System.Text;
+	using System.ComponentModel.Composition;
 	using System.ComponentModel.Composition.Hosting;
 	using System.ComponentModel.Composition.Primitives;
+	using System.ComponentModel.Composition.ReflectionModel;
 	using Xunit;
 
 	public class ModuleCatalogFacts : IDisposable
@@ -61,6 +63,23 @@
 
 			Assert.Equal(2, _catalog.Parts.Count());
 			Assert.Equal(2, exports.Count());
+		}
+
+		[Fact]
+		public void parts_list_contains_new_part_after_module_loaded()
+		{
+			setup_two_modules_two_parts();
+
+			var part1_found_before = _catalog.Parts.Where(d => d.ExportDefinitions.Any(e => e.ContractName == typeof(TestModules.Test1.Test1Part).FullName)).ToArray();
+			var part2_found_before = _catalog.Parts.Where(d => d.ExportDefinitions.Any(e => e.ContractName == typeof(TestModules.Test2.Test2Part).FullName)).ToArray();
+			_catalog.Load(m => m.Name == "Test1");
+			var part1_found_after = _catalog.Parts.Where(d => d.ExportDefinitions.Any(e => e.ContractName == typeof(TestModules.Test1.Test1Part).FullName)).ToArray();
+			var part2_found_after = _catalog.Parts.Where(d => d.ExportDefinitions.Any(e => e.ContractName == typeof(TestModules.Test2.Test2Part).FullName)).ToArray();
+
+			Assert.Empty(part1_found_before);
+			Assert.NotEmpty(part1_found_after);
+			Assert.Empty(part2_found_before);
+			Assert.Empty(part2_found_after);
 		}
 	}
 }
