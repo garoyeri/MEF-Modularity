@@ -17,7 +17,7 @@
 		{
 		}
 
-		public void SetupScenario1()
+		public void setup_two_modules_two_parts()
 		{
 			_inner_catalog = new TypeCatalog(
 				typeof(TestModules.Test1.Test1Module), typeof(TestModules.Test1.Test1Part),
@@ -37,13 +37,13 @@
 		[Fact]
 		public void can_create_with_inner_catalog()
 		{
-			SetupScenario1();
+			setup_two_modules_two_parts();
 		}
 
 		[Fact]
 		public void can_get_modules_from_catalog()
 		{
-			SetupScenario1();
+			setup_two_modules_two_parts();
 
 			Assert.Equal(2, _catalog.Modules.Count());
 			Assert.True(_catalog.Modules.Any(m => m.Name == "Test1"));
@@ -53,7 +53,7 @@
 		[Fact]
 		public void parts_list_only_contains_modules_when_no_modules_loaded()
 		{
-			SetupScenario1();
+			setup_two_modules_two_parts();
 
 			var exports = _catalog.GetExports(
 				new ImportDefinition(d => true, typeof(IModule).FullName,

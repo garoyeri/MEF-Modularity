@@ -8,5 +8,8 @@
 	public interface IModuleInfo
 	{
 		string Name { get; }
+		Type ModuleType { get; }
+
+		void Load();
 	}
 }
